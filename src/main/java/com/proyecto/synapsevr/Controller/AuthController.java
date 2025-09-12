@@ -1,62 +1,78 @@
 package com.proyecto.synapsevr.Controller;
 
+import com.proyecto.synapsevr.Dto.Response.ApiResponse;
+import com.proyecto.synapsevr.Dto.Request.LoginRequest;
+import com.proyecto.synapsevr.Dto.Request.RegisterRequest;
+import com.proyecto.synapsevr.Dto.Response.AuthResponse;
 import com.proyecto.synapsevr.Service.AuthService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
-@Controller
+@RestController
+@RequestMapping("/api/auth")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*")
 public class AuthController {
 
     private final AuthService authService;
 
-    // Mostrar formulario de login
-    @GetMapping("/login")
-    public String showLoginForm() {
-        return "login";
-    }
-
-    // Procesar login
-    @PostMapping("/login")
-    public String processLogin(@RequestParam String email,
-                               @RequestParam String password,
-                               Model model) {
-        if (authService.loginUser(email, password)) {
-            return "redirect:/dashboard"; // Login exitoso
-        } else {
-            model.addAttribute("error", "Credenciales incorrectas");
-            return "login"; // Volver al login
-        }
-    }
-
-    // Mostrar formulario de registro
-    @GetMapping("/register")
-    public String showRegisterForm() {
-        return "register";
-    }
-
-    @GetMapping("/dashboard")
-    public String dashboard() {
-        return "dashboard"; // necesitarías crear dashboard.html
-    }
-
-    // Procesar registro
     @PostMapping("/register")
-    public String processRegister(@RequestParam String email,
-                                  @RequestParam String userName,
-                                  @RequestParam String password,
-                                  Model model) {
-        if (authService.registerUser(email, userName, password)) {
-            model.addAttribute("success", "Usuario registrado exitosamente");
-            return "login"; // Redirigir al login después del registro
-        } else {
-            model.addAttribute("error", "El email ya está registrado");
-            return "register"; // Volver al registro con error
+    public ResponseEntity<ApiResponse<AuthResponse>> register(@RequestBody RegisterRequest request) {
+        try {
+            AuthResponse authResponse = authService.registerUser(request);
+
+            return ResponseEntity.ok(
+                    ApiResponse.success("Usuario registrado exitosamente", authResponse)
+            );
+
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error(e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.error("Error interno del servidor"));
         }
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<ApiResponse<AuthResponse>> login(@RequestBody LoginRequest request) {
+        try {
+            AuthResponse authResponse = authService.loginUser(request);
+
+            return ResponseEntity.ok(
+                    ApiResponse.success("Login exitoso", authResponse)
+            );
+
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.error("Credenciales inválidas"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.error("Error interno del servidor"));
+        }
+    }
+
+    @GetMapping("/check-email")
+    public ResponseEntity<ApiResponse<Boolean>> checkEmail(@RequestParam String email) {
+        try {
+            boolean exists = authService.emailExists(email);
+
+            return ResponseEntity.ok(
+                    ApiResponse.success("Email verificado", exists)
+            );
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.error("Error al verificar email"));
+        }
+    }
+
+    @GetMapping("/test")
+    public ResponseEntity<ApiResponse<String>> test() {
+        return ResponseEntity.ok(
+                ApiResponse.success("API de autenticación funcionando correctamente")
+        );
     }
 }
