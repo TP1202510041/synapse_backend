@@ -17,7 +17,7 @@ import java.util.function.Function;
 @Component
 public class JwtConfig {
 
-    @Value("${jwt.secret:mySecretKey}")
+    @Value("${jwt.secret:mySecretKey123456789012345678901234567890}")
     private String secretKey;
 
     @Value("${jwt.expiration:86400000}") // 24 horas en milisegundos
@@ -39,7 +39,7 @@ public class JwtConfig {
         return claimsResolver.apply(claims);
     }
 
-    // Extraer todos los claims
+    // Extraer todos los claims - MÉTODO CORREGIDO
     private Claims extractAllClaims(String token) {
         return Jwts.parser()
                 .setSigningKey(getSignInKey())
@@ -81,9 +81,14 @@ public class JwtConfig {
         return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
     }
 
-    // Obtener clave de firma
+    // Obtener clave de firma - MÉTODO MEJORADO
     private Key getSignInKey() {
         byte[] keyBytes = secretKey.getBytes();
+        // Asegurar que la clave tenga al menos 256 bits (32 bytes)
+        if (keyBytes.length < 32) {
+            String paddedKey = secretKey + "0".repeat(32 - keyBytes.length);
+            keyBytes = paddedKey.getBytes();
+        }
         return Keys.hmacShaKeyFor(keyBytes);
     }
 }

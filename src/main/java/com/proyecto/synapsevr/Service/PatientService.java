@@ -1,7 +1,7 @@
 package com.proyecto.synapsevr.Service;
 
-import com.proyecto.synapsevr.Dto.Request.PatientRequest;
-import com.proyecto.synapsevr.Dto.Response.PatientResponse;
+import com.proyecto.synapsevr.dto.Request.PatientRequest;
+import com.proyecto.synapsevr.dto.Response.PatientResponse;
 
 import java.util.List;
 

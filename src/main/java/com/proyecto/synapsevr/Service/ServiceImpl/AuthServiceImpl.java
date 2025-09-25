@@ -1,8 +1,8 @@
 package com.proyecto.synapsevr.Service.ServiceImpl;
 
-import com.proyecto.synapsevr.Dto.Request.LoginRequest;
-import com.proyecto.synapsevr.Dto.Request.RegisterRequest;
-import com.proyecto.synapsevr.Dto.Response.AuthResponse;
+import com.proyecto.synapsevr.dto.Request.LoginRequest;
+import com.proyecto.synapsevr.dto.Request.RegisterRequest;
+import com.proyecto.synapsevr.dto.Response.AuthResponse;
 import com.proyecto.synapsevr.Entity.UserEntity;
 import com.proyecto.synapsevr.Repository.UserRepository;
 import com.proyecto.synapsevr.Security.JwtConfig;

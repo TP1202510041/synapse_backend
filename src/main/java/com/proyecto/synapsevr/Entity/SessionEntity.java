@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -19,7 +20,7 @@ public class SessionEntity {
     @Column(name = "id_session")
     private UUID idSession;
     @Column(name = "session_date")
-    private LocalDateTime sessionDate;
+    private LocalDate sessionDate;
     private String description;
 
     @ManyToOne

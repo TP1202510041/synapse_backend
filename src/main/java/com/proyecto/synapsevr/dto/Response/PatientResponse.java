@@ -1,4 +1,4 @@
-package com.proyecto.synapsevr.Dto.Response;
+package com.proyecto.synapsevr.dto.Response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

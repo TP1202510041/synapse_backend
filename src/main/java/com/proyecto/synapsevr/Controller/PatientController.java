@@ -1,7 +1,7 @@
 package com.proyecto.synapsevr.Controller;
 
-import com.proyecto.synapsevr.Dto.Request.PatientRequest;
-import com.proyecto.synapsevr.Dto.Response.PatientResponse;
+import com.proyecto.synapsevr.dto.Request.PatientRequest;
+import com.proyecto.synapsevr.dto.Response.PatientResponse;
 import com.proyecto.synapsevr.Service.PatientService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

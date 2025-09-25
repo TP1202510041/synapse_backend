@@ -26,53 +26,47 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
-
-        System.out.println("=====================================");
-        System.out.println("🚀 NUEVA PETICIÓN: " + request.getRequestURI());
-
         String authHeader = request.getHeader("Authorization");
-        System.out.println("🔑 Header Authorization: " + authHeader);
 
-        String jwt = null;
-        String username = null;
+        // DEBUG - Agregar logs temporales
+        System.out.println("🔍 REQUEST URL: " + request.getRequestURL().toString());
+        System.out.println("🔍 Authorization Header: " + authHeader);
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            jwt = authHeader.substring(7);
-            System.out.println("🔑 JWT encontrado: SÍ");
+            String jwt = authHeader.substring(7);
+            System.out.println("🔍 JWT Token (primeros 50 chars): " + jwt.substring(0, Math.min(50, jwt.length())));
 
             try {
-                username = jwtConfig.extractUsername(jwt);
-                System.out.println("🔑 Username del token: " + username);
+                String username = jwtConfig.extractUsername(jwt);
+                System.out.println("🔍 Username extraído del token: " + username);
+
+                if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                    UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
+                    System.out.println("🔍 UserDetails encontrado: " + userDetails.getUsername());
+                    System.out.println("🔍 Authorities: " + userDetails.getAuthorities());
+
+                    if (jwtConfig.isTokenValid(jwt, userDetails)) {
+                        UsernamePasswordAuthenticationToken authToken =
+                                new UsernamePasswordAuthenticationToken(
+                                        userDetails, null, userDetails.getAuthorities()
+                                );
+                        authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                        SecurityContextHolder.getContext().setAuthentication(authToken);
+                        System.out.println("🔍 Autenticación exitosa para: " + username);
+                    } else {
+                        System.out.println("❌ Token inválido para usuario: " + username);
+                    }
+                } else {
+                    System.out.println("❌ Username nulo o ya autenticado");
+                }
             } catch (Exception e) {
-                System.out.println("❌ ERROR extrayendo username: " + e.getMessage());
+                System.out.println("❌ Error procesando token: " + e.getMessage());
+                e.printStackTrace();
             }
         } else {
-            System.out.println("❌ NO hay header Authorization válido");
+            System.out.println("❌ No hay Authorization header o no empieza con Bearer");
         }
 
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            System.out.println("🔄 Validando token...");
-
-            UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
-
-            if (jwtConfig.isTokenValid(jwt, userDetails)) {
-                System.out.println("✅ TOKEN VÁLIDO - Configurando autenticación");
-
-                UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(
-                                userDetails,
-                                null,
-                                userDetails.getAuthorities()
-                        );
-
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
-            } else {
-                System.out.println("❌ TOKEN INVÁLIDO");
-            }
-        }
-
-        System.out.println("=====================================");
         filterChain.doFilter(request, response);
     }
 }

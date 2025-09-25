@@ -1,7 +1,7 @@
 package com.proyecto.synapsevr.Service.ServiceImpl;
 
-import com.proyecto.synapsevr.Dto.Request.PatientRequest;
-import com.proyecto.synapsevr.Dto.Response.PatientResponse;
+import com.proyecto.synapsevr.dto.Request.PatientRequest;
+import com.proyecto.synapsevr.dto.Response.PatientResponse;
 import com.proyecto.synapsevr.Entity.PatientEntity;
 import com.proyecto.synapsevr.Entity.UserEntity;
 import com.proyecto.synapsevr.Repository.PatientRepository;
@@ -87,20 +87,33 @@ public class PatientServiceImpl implements PatientService {
         PatientEntity updatedPatient = patientRepository.save(patient);
         return convertToResponse(updatedPatient);
     }
-    
+
     @Override
     public void deletePatient(int patientId) {
+        System.out.println("🔍 Intentando eliminar paciente ID: " + patientId);
+
         UserEntity currentUser = getCurrentUser();
-        
+        System.out.println("🔍 Usuario actual: " + currentUser.getEmail());
+
         PatientEntity patient = patientRepository.findById(patientId)
-                .orElseThrow(() -> new RuntimeException("Paciente no encontrado"));
-        
-        // Verificar que el paciente pertenece al terapeuta logueado (comparación con int)
+                .orElseThrow(() -> {
+                    System.out.println("❌ Paciente con ID " + patientId + " no encontrado");
+                    return new RuntimeException("Paciente no encontrado");
+                });
+
+        System.out.println("🔍 Paciente encontrado: " + patient.getPatientName());
+        System.out.println("🔍 Paciente pertenece a usuario ID: " + patient.getUser().getUserId());
+        System.out.println("🔍 Usuario actual ID: " + currentUser.getUserId());
+
+        // Verificar que el paciente pertenece al terapeuta logueado
         if (patient.getUser().getUserId() != currentUser.getUserId()) {
+            System.out.println("❌ El paciente no pertenece al usuario actual");
             throw new RuntimeException("No tienes permisos para eliminar este paciente");
         }
-        
+
+        System.out.println("✅ Eliminando paciente...");
         patientRepository.delete(patient);
+        System.out.println("✅ Paciente eliminado exitosamente");
     }
     
     /**

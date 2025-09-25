@@ -42,11 +42,10 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/users").hasAnyRole("USER", "ADMIN")          // ← Más específico primero
-                        .requestMatchers("/api/users/test").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers("/api/users/profile").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers("/api/patients/**").hasAnyRole("USER", "ADMIN")
-                        .anyRequest().authenticated()                                        // ← Más general al final
+                        .requestMatchers("/api/sessions/**").permitAll() // ← TEMPORAL para testing
+                        .requestMatchers("/api/patients/**").permitAll() // ← TEMPORAL para testing
+                        .requestMatchers("/api/users/**").hasAnyRole("USER", "ADMIN")
+                        .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

@@ -1,9 +1,9 @@
 package com.proyecto.synapsevr.Controller;
 
-import com.proyecto.synapsevr.Dto.Response.ApiResponse;
-import com.proyecto.synapsevr.Dto.Request.LoginRequest;
-import com.proyecto.synapsevr.Dto.Request.RegisterRequest;
-import com.proyecto.synapsevr.Dto.Response.AuthResponse;
+import com.proyecto.synapsevr.dto.Response.ApiResponse;
+import com.proyecto.synapsevr.dto.Request.LoginRequest;
+import com.proyecto.synapsevr.dto.Request.RegisterRequest;
+import com.proyecto.synapsevr.dto.Response.AuthResponse;
 import com.proyecto.synapsevr.Service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
