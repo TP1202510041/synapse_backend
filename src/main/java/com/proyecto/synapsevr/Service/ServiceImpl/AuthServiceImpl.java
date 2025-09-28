@@ -47,7 +47,7 @@ public class AuthServiceImpl implements AuthService {
         return AuthResponse.builder()
                 .token(jwt)
                 .email(savedUser.getEmail())
-                .userName(savedUser.getUsername())
+                .userName(savedUser.getUserName())
                 .role(savedUser.getRole().name())
                 .message("Usuario registrado exitosamente")
                 .build();
@@ -73,7 +73,7 @@ public class AuthServiceImpl implements AuthService {
         return AuthResponse.builder()
                 .token(jwt)
                 .email(user.getEmail())
-                .userName(user.getUsername())
+                .userName(user.getUserName())
                 .role(user.getRole().name())
                 .message("Login exitoso")
                 .build();

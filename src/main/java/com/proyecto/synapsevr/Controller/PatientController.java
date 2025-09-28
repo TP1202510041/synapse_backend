@@ -3,6 +3,12 @@ package com.proyecto.synapsevr.Controller;
 import com.proyecto.synapsevr.dto.Request.PatientRequest;
 import com.proyecto.synapsevr.dto.Response.PatientResponse;
 import com.proyecto.synapsevr.Service.PatientService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,15 +20,18 @@ import java.util.List;
 @RequestMapping("/api/patients")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:4200")
+@Tag(name = "Patients", description = "API para gestión de pacientes")
+@SecurityRequirement(name = "Bearer Authentication")
 public class PatientController {
     
     private final PatientService patientService;
     
-    /**
-     * Obtener todos los pacientes del terapeuta logueado
-     * GET /api/patients
-     */
     @GetMapping
+    @Operation(summary = "Obtener todos los pacientes", description = "Obtiene la lista de todos los pacientes del terapeuta logueado")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Lista de pacientes obtenida exitosamente"),
+        @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
     public ResponseEntity<List<PatientResponse>> getAllPatients() {
         try {
             List<PatientResponse> patients = patientService.getAllPatients();
@@ -32,12 +41,15 @@ public class PatientController {
         }
     }
     
-    /**
-     * Obtener un paciente por ID
-     * GET /api/patients/{id}
-     */
     @GetMapping("/{id}")
-    public ResponseEntity<PatientResponse> getPatientById(@PathVariable int id) {
+    @Operation(summary = "Obtener paciente por ID", description = "Obtiene un paciente específico por su ID")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Paciente encontrado"),
+        @ApiResponse(responseCode = "404", description = "Paciente no encontrado"),
+        @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
+    public ResponseEntity<PatientResponse> getPatientById(
+            @Parameter(description = "ID del paciente") @PathVariable int id) {
         try {
             PatientResponse patient = patientService.getPatientById(id);
             return ResponseEntity.ok(patient);
@@ -48,11 +60,13 @@ public class PatientController {
         }
     }
     
-    /**
-     * Crear un nuevo paciente
-     * POST /api/patients
-     */
     @PostMapping
+    @Operation(summary = "Crear nuevo paciente", description = "Crea un nuevo paciente en el sistema")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "Paciente creado exitosamente"),
+        @ApiResponse(responseCode = "400", description = "Datos de paciente inválidos"),
+        @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
     public ResponseEntity<PatientResponse> createPatient(@RequestBody PatientRequest request) {
         try {
             // Validar que los campos obligatorios no estén vacíos
@@ -73,12 +87,17 @@ public class PatientController {
         }
     }
     
-    /**
-     * Actualizar un paciente existente
-     * PUT /api/patients/{id}
-     */
     @PutMapping("/{id}")
-    public ResponseEntity<PatientResponse> updatePatient(@PathVariable int id, @RequestBody PatientRequest request) {
+    @Operation(summary = "Actualizar paciente", description = "Actualiza los datos de un paciente existente")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Paciente actualizado exitosamente"),
+        @ApiResponse(responseCode = "400", description = "Datos de paciente inválidos"),
+        @ApiResponse(responseCode = "404", description = "Paciente no encontrado"),
+        @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
+    public ResponseEntity<PatientResponse> updatePatient(
+            @Parameter(description = "ID del paciente") @PathVariable int id, 
+            @RequestBody PatientRequest request) {
         try {
             // Validar que los campos obligatorios no estén vacíos
             if (request.getPatientName() == null || request.getPatientName().trim().isEmpty()) {
@@ -100,12 +119,15 @@ public class PatientController {
         }
     }
     
-    /**
-     * Eliminar un paciente
-     * DELETE /api/patients/{id}
-     */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePatient(@PathVariable int id) {
+    @Operation(summary = "Eliminar paciente", description = "Elimina un paciente del sistema")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Paciente eliminado exitosamente"),
+        @ApiResponse(responseCode = "404", description = "Paciente no encontrado"),
+        @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
+    public ResponseEntity<Void> deletePatient(
+            @Parameter(description = "ID del paciente") @PathVariable int id) {
         try {
             patientService.deletePatient(id);
             return ResponseEntity.ok().build();

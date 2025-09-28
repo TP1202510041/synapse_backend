@@ -3,7 +3,7 @@ package com.proyecto.synapsevr.Service.ServiceImpl;
 import com.proyecto.synapsevr.Entity.MonitoringRecordEntity;
 import com.proyecto.synapsevr.Repository.MonitoringRecordRepository;
 import com.proyecto.synapsevr.Service.MonitoringService;
-import com.proyecto.synapsevr.Service.MongoDbService;
+
 import com.proyecto.synapsevr.dto.Request.MonitoringRecordRequest;
 import com.proyecto.synapsevr.dto.Response.MonitoringRecordResponse;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 public class MonitoringServiceImpl implements MonitoringService {
 
     private final MonitoringRecordRepository monitoringRepository;
-    private final MongoDbService mongoDbService;
+
 
     @Override
     @Transactional
@@ -29,10 +29,7 @@ public class MonitoringServiceImpl implements MonitoringService {
         log.info("Guardando registro de monitoreo para usuario: {} y paciente: {}", userId, request.getPatientId());
         
         try {
-            // 1. Guardar los datos JSON en MongoDB
-            String mongoDocumentId = mongoDbService.saveHeartRateData(request.getHeartRateRecords(), 
-                                                                      request.getSessionId(), 
-                                                                      request.getPatientId());
+            // 1. Sin MongoDB - guardamos solo metadatos en MySQL
             
             // 2. Crear la entidad para PostgreSQL
             MonitoringRecordEntity entity = new MonitoringRecordEntity();
@@ -48,7 +45,7 @@ public class MonitoringServiceImpl implements MonitoringService {
             entity.setAvgHeartRate(request.getAvgHeartRate());
             entity.setMinHeartRate(request.getMinHeartRate());
             entity.setMaxHeartRate(request.getMaxHeartRate());
-            entity.setMongoDocumentId(mongoDocumentId); // Referencia a MongoDB
+            entity.setMongoDocumentId(null); // Sin MongoDB
             
             // 3. Guardar en PostgreSQL
             MonitoringRecordEntity savedEntity = monitoringRepository.save(entity);
@@ -121,16 +118,7 @@ public class MonitoringServiceImpl implements MonitoringService {
             MonitoringRecordEntity entity = monitoringRepository.findByMonitoringIdAndUserId(monitoringId, userId)
                     .orElseThrow(() -> new RuntimeException("Registro de monitoreo no encontrado o no pertenece al usuario"));
             
-            // Eliminar datos de MongoDB si existen
-            if (entity.getMongoDocumentId() != null) {
-                try {
-                    mongoDbService.deleteHeartRateData(entity.getMongoDocumentId());
-                    log.info("Datos de MongoDB eliminados para documento: {}", entity.getMongoDocumentId());
-                } catch (Exception e) {
-                    log.warn("No se pudieron eliminar los datos de MongoDB: {}", e.getMessage());
-                    // Continuamos con la eliminación en PostgreSQL aunque falle MongoDB
-                }
-            }
+            // Sin MongoDB - solo eliminamos de MySQL
             
             // Eliminar registro de PostgreSQL
             monitoringRepository.delete(entity);
