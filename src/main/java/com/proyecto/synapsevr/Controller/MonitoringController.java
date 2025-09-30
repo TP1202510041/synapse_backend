@@ -70,7 +70,32 @@ public class MonitoringController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+    @GetMapping("/session/{sessionId}")
+    public ResponseEntity<List<MonitoringRecordResponse>> getMonitoringRecordsBySession(
+            @PathVariable UUID sessionId,
+            Principal principal) {
+        try {
+            log.info("📊 Obteniendo registros de monitoreo para sesión: {}", sessionId);
 
+            // Obtener email del Principal
+            String userEmail = principal.getName();
+
+            // Buscar usuario por email
+            UserEntity user = userRepository.findByEmail(userEmail)
+                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+            // Obtener registros de la sesión
+            List<MonitoringRecordResponse> records = monitoringService
+                    .getMonitoringRecordsBySession(sessionId, user.getUserId());
+
+            log.info("✅ Se encontraron {} registros para la sesión {}", records.size(), sessionId);
+            return ResponseEntity.ok(records);
+
+        } catch (Exception e) {
+            log.error("❌ Error obteniendo registros de sesión {}: ", sessionId, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteMonitoringRecord(@PathVariable UUID id, Principal principal) {
         try {
@@ -90,4 +115,5 @@ public class MonitoringController {
                     .body("Error deleting monitoring record");
         }
     }
+
 }
