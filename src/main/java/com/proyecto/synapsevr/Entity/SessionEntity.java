@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,6 +22,16 @@ public class SessionEntity {
     private LocalDate sessionDate;
     private String description;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "exposure_level")
+    private ExposureLevel exposureLevel = ExposureLevel.MEDIO;
+
+    @Column(name = "duration")
+    private Integer duration;
+
+    @Column(name = "status")
+    private String status;
+
     @ManyToOne
     @JoinColumn(name = "user_id_fk")
     private UserEntity user;
@@ -30,4 +39,27 @@ public class SessionEntity {
     @ManyToOne
     @JoinColumn(name = "patient_id_fk")
     private PatientEntity patient;
+
+    @OneToMany(mappedBy = "session", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<ClinicalObservationEntity> observations;
+
+    @OneToOne(mappedBy = "session", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private VrSessionEntity vrSession;
+
+    public enum ExposureLevel {
+        BAJO("Bajo"),
+        MEDIO("Medio"),
+        ALTO("Alto"),
+        MUY_ALTO("Muy Alto");
+
+        private final String displayName;
+
+        ExposureLevel(String displayName) {
+            this.displayName = displayName;
+        }
+
+        public String getDisplayName() {
+            return displayName;
+        }
+    }
 }

@@ -30,6 +30,7 @@ public class SecurityConfig {
         return http
                 .cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable())
+                .headers(headers -> headers.frameOptions(frame -> frame.disable())) // Para H2 Console
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(jwtAuthenticationEntryPoint)
                 )
@@ -38,9 +39,12 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/admin/**").permitAll() // ← TEMPORAL para debugging
                         .requestMatchers("/api/sessions/**").permitAll() // ← TEMPORAL para testing
                         .requestMatchers("/api/patients/**").permitAll() // ← TEMPORAL para testing
+                        .requestMatchers("/api/events/**").permitAll() // ← TEMPORAL para testing JWT
                         .requestMatchers("/api/users/**").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers("/h2-console/**").permitAll() // ← H2 Console
                         // Swagger UI endpoints
                         .requestMatchers("/swagger-ui/**").permitAll()
                         .requestMatchers("/swagger-ui.html").permitAll()

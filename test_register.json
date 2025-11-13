@@ -1,0 +1,14 @@
+{
+  "userName": "Dr. Juan Pérez",
+  "email": "juan.perez@hospital.com",
+  "password": "SecurePass123!",
+  "confirmPassword": "SecurePass123!",
+  "phoneNumber": "+51987654321",
+  "dni": "12345678",
+  "address": "Av. Principal 123, Lima, Perú",
+  "birthDate": "1985-05-15",
+  "gender": "MASCULINO",
+  "role": "THERAPIST",
+  "professionalLicense": "COP-12345",
+  "specialization": "Psicología Clínica"
+}

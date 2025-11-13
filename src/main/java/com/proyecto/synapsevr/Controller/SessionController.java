@@ -1,8 +1,10 @@
 package com.proyecto.synapsevr.Controller;
 
 import com.proyecto.synapsevr.dto.Request.SessionRequest;
+import com.proyecto.synapsevr.dto.Request.UpdateSessionRequest;
 import com.proyecto.synapsevr.dto.Response.SessionResponse;
 import com.proyecto.synapsevr.dto.Response.CalendarSessionResponse;
+import com.proyecto.synapsevr.dto.Response.FilteredSessionsResponse;
 import com.proyecto.synapsevr.Service.SessionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -86,6 +88,23 @@ public class SessionController {
         }
     }
     
+    // ✏️ PUT: Actualizar sesión existente
+    @PutMapping("/{sessionId}")
+    public ResponseEntity<SessionResponse> updateSession(
+            @PathVariable UUID sessionId,
+            @RequestBody UpdateSessionRequest updateRequest,
+            Principal principal) {
+        try {
+            String userEmail = principal.getName();
+            SessionResponse updatedSession = sessionService.updateSession(sessionId, updateRequest, userEmail);
+            return ResponseEntity.ok(updatedSession);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+    
     // 🗑️ DELETE: Eliminar sesión
     @DeleteMapping("/{sessionId}")
     public ResponseEntity<Void> deleteSession(@PathVariable UUID sessionId, Principal principal) {
@@ -116,6 +135,26 @@ public class SessionController {
             }
 
             List<CalendarSessionResponse> sessions = sessionService.getSessionsForCalendar(startDate, endDate);
+            return ResponseEntity.ok(sessions);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    // 🔍 GET: Obtener sesiones con filtros (HU-006-006)
+    @GetMapping("/patient/{patientId}/filtered")
+    public ResponseEntity<FilteredSessionsResponse> getFilteredSessions(
+            @PathVariable Integer patientId,
+            @RequestParam(required = false) List<String> exposureLevel,
+            @RequestParam(required = false) LocalDate dateFrom,
+            @RequestParam(required = false) LocalDate dateTo,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "20") int limit,
+            @RequestParam(defaultValue = "sessionDate") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortOrder) {
+        try {
+            FilteredSessionsResponse sessions = sessionService.getSessionsWithFilters(
+                    patientId, exposureLevel, dateFrom, dateTo, page, limit, sortBy, sortOrder);
             return ResponseEntity.ok(sessions);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

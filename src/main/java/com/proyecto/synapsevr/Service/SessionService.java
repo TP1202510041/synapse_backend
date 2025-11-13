@@ -1,8 +1,10 @@
 package com.proyecto.synapsevr.Service;
 
 import com.proyecto.synapsevr.dto.Request.SessionRequest;
+import com.proyecto.synapsevr.dto.Request.UpdateSessionRequest;
 import com.proyecto.synapsevr.dto.Response.SessionResponse;
 import com.proyecto.synapsevr.dto.Response.CalendarSessionResponse;
+import com.proyecto.synapsevr.dto.Response.FilteredSessionsResponse;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -31,6 +33,14 @@ public interface SessionService {
     
     // 📆 Obtener sesiones para el calendario
     List<CalendarSessionResponse> getSessionsForCalendar(LocalDate startDate, LocalDate endDate);
+    
+    // 🔍 Obtener sesiones con filtros (HU-006-006)
+    FilteredSessionsResponse getSessionsWithFilters(Integer patientId, List<String> exposureLevels, 
+                                                   LocalDate dateFrom, LocalDate dateTo, 
+                                                   int page, int limit, String sortBy, String sortOrder);
+    
+    // ✏️ Actualizar sesión existente
+    SessionResponse updateSession(UUID sessionId, UpdateSessionRequest updateRequest, String userEmail);
     
     // 📊 Contar sesiones de un paciente
     //long countSessionsByPatientId(Long patientId);
