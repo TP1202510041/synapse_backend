@@ -105,6 +105,13 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-thymeleaf</artifactId>
 		</dependency>
+
+		<!-- SQL Server Driver for Azure SQL Database -->
+		<dependency>
+		    <groupId>com.microsoft.sqlserver</groupId>
+		    <artifactId>mssql-jdbc</artifactId>
+		    <version>12.2.0.jre11</version>
+		</dependency>
 		
 		<!-- MySQL Driver -->
 		<dependency>
