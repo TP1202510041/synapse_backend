@@ -112,7 +112,14 @@
 		    <artifactId>mssql-jdbc</artifactId>
 		    <version>12.2.0.jre11</version>
 		</dependency>
-		
+
+
+		<dependency>
+			<groupId>org.hibernate.orm</groupId>
+			<artifactId>hibernate-core</artifactId>
+		</dependency>
+
+
 		<!-- MySQL Driver -->
 		<dependency>
 			<groupId>mysql</groupId>
