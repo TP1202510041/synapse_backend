@@ -105,7 +105,21 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-thymeleaf</artifactId>
 		</dependency>
-		
+
+		<!-- SQL Server Driver for Azure SQL Database -->
+		<dependency>
+		    <groupId>com.microsoft.sqlserver</groupId>
+		    <artifactId>mssql-jdbc</artifactId>
+		    <version>12.2.0.jre11</version>
+		</dependency>
+
+
+		<dependency>
+			<groupId>org.hibernate.orm</groupId>
+			<artifactId>hibernate-core</artifactId>
+		</dependency>
+
+
 		<!-- MySQL Driver -->
 		<dependency>
 			<groupId>mysql</groupId>
@@ -113,11 +127,24 @@
 			<version>8.0.33</version>
 		</dependency>
 		
+		<!-- H2 Database for local development -->
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		
 		<!-- Swagger/OpenAPI 3 -->
 		<dependency>
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
 			<version>2.2.0</version>
+		</dependency>
+		
+		<!-- Spring Boot Mail -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-mail</artifactId>
 		</dependency>
 	</dependencies>
 

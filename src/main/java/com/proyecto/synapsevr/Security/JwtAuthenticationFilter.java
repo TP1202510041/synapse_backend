@@ -26,6 +26,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
+        // Permitir endpoints públicos sin JWT
+        String path = request.getRequestURI();
+        System.out.println("🔍 [JWT FILTER] Checking path: " + path);
+        
+        if (path.contains("/api/auth/register") || 
+            path.contains("/api/auth/login") ||
+            path.contains("/api/auth/forgot-password") ||
+            path.contains("/api/auth/reset-password") ||
+            path.contains("/api/auth/verify-reset-code") ||
+            path.contains("/api/auth/test") ||
+            path.contains("/api/auth/check-email")) {
+            System.out.println("✅ [JWT FILTER] Public endpoint, skipping JWT validation");
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String authHeader = request.getHeader("Authorization");
 
         // DEBUG - Agregar logs temporales
@@ -45,19 +61,36 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     System.out.println("🔍 UserDetails encontrado: " + userDetails.getUsername());
                     System.out.println("🔍 Authorities: " + userDetails.getAuthorities());
 
-                    if (jwtConfig.isTokenValid(jwt, userDetails)) {
+                    // Verificar validez del token con más detalle
+                    boolean isValid = jwtConfig.isTokenValid(jwt, userDetails);
+                    System.out.println("🔍 ¿Token válido? " + isValid);
+                    
+                    if (isValid) {
                         UsernamePasswordAuthenticationToken authToken =
                                 new UsernamePasswordAuthenticationToken(
                                         userDetails, null, userDetails.getAuthorities()
                                 );
                         authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                         SecurityContextHolder.getContext().setAuthentication(authToken);
-                        System.out.println("🔍 Autenticación exitosa para: " + username);
+                        System.out.println("✅ Autenticación exitosa para: " + username);
                     } else {
                         System.out.println("❌ Token inválido para usuario: " + username);
+                        // Verificar por qué es inválido
+                        try {
+                            java.util.Date expiration = jwtConfig.extractExpiration(jwt);
+                            System.out.println("🔍 Token expira en: " + expiration);
+                            System.out.println("🔍 Fecha actual: " + new java.util.Date());
+                            System.out.println("🔍 ¿Expirado? " + expiration.before(new java.util.Date()));
+                        } catch (Exception ex) {
+                            System.out.println("❌ Error verificando expiración: " + ex.getMessage());
+                        }
                     }
                 } else {
-                    System.out.println("❌ Username nulo o ya autenticado");
+                    if (username == null) {
+                        System.out.println("❌ Username es nulo");
+                    } else {
+                        System.out.println("❌ Usuario ya autenticado: " + SecurityContextHolder.getContext().getAuthentication());
+                    }
                 }
             } catch (Exception e) {
                 System.out.println("❌ Error procesando token: " + e.getMessage());

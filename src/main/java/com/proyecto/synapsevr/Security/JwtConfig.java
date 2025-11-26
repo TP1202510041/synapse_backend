@@ -2,7 +2,6 @@ package com.proyecto.synapsevr.Security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,7 +19,7 @@ public class JwtConfig {
     @Value("${jwt.secret:mySecretKey123456789012345678901234567890}")
     private String secretKey;
 
-    @Value("${jwt.expiration:86400000}") // 24 horas en milisegundos
+    @Value("${jwt.expiration:604800000}") // 7 días en milisegundos (7 * 24 * 60 * 60 * 1000)
     private long jwtExpiration;
 
     // Extraer username (email) del token
@@ -39,13 +38,18 @@ public class JwtConfig {
         return claimsResolver.apply(claims);
     }
 
-    // Extraer todos los claims - MÉTODO CORREGIDO
+    // Extraer todos los claims - MÉTODO ACTUALIZADO
     private Claims extractAllClaims(String token) {
-        return Jwts.parser()
-                .setSigningKey(getSignInKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+        try {
+            return Jwts.parser()
+                    .verifyWith(getSignInKey())
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+        } catch (Exception e) {
+            System.err.println("❌ Error parseando token: " + e.getMessage());
+            throw e;
+        }
     }
 
     // Verificar si el token está expirado
@@ -64,14 +68,14 @@ public class JwtConfig {
         return createToken(extraClaims, userDetails.getUsername());
     }
 
-    // Crear el token JWT
+    // Crear el token JWT - MÉTODO ACTUALIZADO
     private String createToken(Map<String, Object> claims, String subject) {
         return Jwts.builder()
-                .setClaims(claims)
-                .setSubject(subject)
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
-                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+                .claims(claims)
+                .subject(subject)
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + jwtExpiration))
+                .signWith(getSignInKey())
                 .compact();
     }
 
@@ -82,7 +86,7 @@ public class JwtConfig {
     }
 
     // Obtener clave de firma - MÉTODO MEJORADO
-    private Key getSignInKey() {
+    private javax.crypto.SecretKey getSignInKey() {
         byte[] keyBytes = secretKey.getBytes();
         // Asegurar que la clave tenga al menos 256 bits (32 bytes)
         if (keyBytes.length < 32) {

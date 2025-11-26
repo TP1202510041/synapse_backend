@@ -1,0 +1,7 @@
+{
+  "userName": "María García",
+  "email": "maria.garcia@test.com",
+  "password": "TestPass123!",
+  "confirmPassword": "TestPass123!",
+  "role": "USER"
+}
